@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Discogs Collection Viewer</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      background: #111;
+      color: #eee;
+      font-family: system-ui, sans-serif;
+      margin: 0;
+      padding: 12px 10px;
+    }
+    @media (min-width: 600px) { body { padding: 20px; } }
+
+    h1 { margin-top: 0; margin-bottom: 10px; font-weight: 700; font-size: clamp(1.1rem, 5vw, 1.8rem); }
+
+    .setup-box { background: #1b1b1b; border: 1px solid #333; padding: 20px; border-radius: 6px; max-width: 400px; width: 100%; }
+    label { font-size: 0.9rem; color: #ccc; }
+    input { width: 100%; padding: 10px; margin-top: 8px; margin-bottom: 12px; border-radius: 4px; border: 1px solid #444; background: #222; color: #eee; font-size: 1rem; }
+    button { padding: 12px 20px; background: #3b82f6; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; color: #111; font-size: 1rem; width: 100%; }
+
+    /* Search */
+    .search-wrap { position: relative; margin-top: 8px; }
+    .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #666; pointer-events: none; display: flex; align-items: center; }
+    #searchInput { width: 100%; padding: 10px 36px 10px 34px; border-radius: 6px; border: 1px solid #333; background: #1a1a1a; color: #eee; font-size: 0.95rem; margin: 0; transition: border-color 0.15s; }
+    #searchInput:focus { outline: none; border-color: #3b82f6; }
+    #searchInput::placeholder { color: #555; }
+    .search-clear { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #555; cursor: pointer; font-size: 1.1rem; padding: 4px 6px; width: auto; display: none; line-height: 1; }
+    .search-clear:hover { color: #eee; }
+
+    /* Format pills */
+    .filter-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+    .pill { padding: 4px 10px; border-radius: 20px; border: 1px solid #333; background: #1a1a1a; color: #aaa; font-size: 0.78rem; cursor: pointer; transition: background 0.12s, color 0.12s, border-color 0.12s; user-select: none; white-space: nowrap; }
+    .pill:hover { border-color: #555; color: #eee; }
+    .pill.active { background: #3b82f6; border-color: #3b82f6; color: #111; font-weight: 600; }
+
+    /* Sort bar */
+    .sort-bar { margin-top: 8px; margin-bottom: 4px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    select { background: #1b1b1b; color: #eee; border: 1px solid #333; padding: 8px 12px; border-radius: 4px; font-size: 0.9rem; flex: 1; min-width: 0; width: 100%; }
+
+    /* Result count */
+    .result-count { font-size: 0.78rem; color: #666; margin-top: 6px; min-height: 1.2em; }
+    .result-count span { color: #3b82f6; font-weight: 600; }
+
+    /* Dashboard */
+    .dashboard { margin-top: 8px; margin-bottom: 8px; background: #151515; border: 1px solid #333; border-radius: 8px; padding: 8px 12px; }
+    .dashboard-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; padding: 2px 0; }
+    .dashboard-header-left { display: flex; align-items: center; gap: 8px; }
+    .dashboard-title { font-weight: 600; font-size: 0.9rem; }
+    .dashboard-toggle { font-size: 0.82rem; color: #aaa; }
+    .dashboard-body { margin-top: 8px; display: none; }
+    .dashboard-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    @media (min-width: 600px) { .dashboard-cards { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; } }
+    .stat-card { background: #1b1b1b; border: 1px solid #333; border-radius: 6px; padding: 8px 10px; font-size: 0.82rem; }
+    .stat-card-header { display: flex; align-items: center; gap: 5px; margin-bottom: 4px; font-weight: 600; font-size: 0.8rem; }
+    .stat-icon { font-size: 0.9rem; }
+    .stat-main { font-size: 0.85rem; margin-bottom: 3px; word-break: break-word; }
+    .stat-sub { font-size: 0.75rem; color: #aaa; word-break: break-word; }
+
+    /* Grid */
+    .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 10px; }
+    @media (min-width: 600px) { .grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; margin-top: 20px; } }
+
+    .card { background: #1b1b1b; border: 1px solid #333; border-radius: 6px; padding: 8px; cursor: pointer; transition: transform 0.15s ease; min-width: 0; overflow: hidden; }
+    @media (min-width: 600px) { .card { padding: 10px; } }
+    .card:hover { transform: scale(1.02); }
+
+    .cover { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 3px; background: #000; display: block; }
+
+    .card-title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 4px; margin-top: 6px; }
+    .title { font-size: 0.85rem; font-weight: 600; flex: 1; min-width: 0; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.3; word-break: break-word; }
+    @media (min-width: 600px) { .title { font-size: 0.95rem; } }
+
+    .discogs-link { flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 4px; background: #222; border: 1px solid #3a3a3a; color: #3b82f6; text-decoration: none; transition: background 0.15s, color 0.15s, transform 0.12s; margin-top: 1px; }
+    .discogs-link:hover { background: #3b82f6; border-color: #3b82f6; color: #111; transform: scale(1.12); }
+
+    .meta { margin-top: 3px; font-size: 0.76rem; color: #aaa; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    @media (min-width: 600px) { .meta { font-size: 0.82rem; } }
+
+    .label-meta { margin-top: 2px; font-size: 0.72rem; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    @media (min-width: 600px) { .label-meta { font-size: 0.78rem; color: #777; } }
+
+    .details { margin-top: 8px; padding-top: 8px; border-top: 1px solid #333; font-size: 0.8rem; display: none; }
+    @media (min-width: 600px) { .details { font-size: 0.85rem; } }
+    .track { margin: 3px 0; color: #ccc; line-height: 1.4; }
+    .runtime { margin-top: 8px; font-weight: 600; color: #60a5fa; }
+    .loading { font-size: 0.9rem; color: #aaa; margin-top: 6px; }
+  </style>
+</head>
+<body>
+
+<h1 id="header">🎶 Discogs Collection</h1>
+
+<div id="dashboard" class="dashboard" style="display:none;">
+  <div class="dashboard-header" id="dashboardToggle">
+    <div class="dashboard-header-left">
+      <span>📊</span>
+      <span class="dashboard-title">Collector Dashboard</span>
+    </div>
+    <div class="dashboard-toggle" id="dashboardToggleText">Hide</div>
+  </div>
+  <div class="dashboard-body" id="dashboardBody">
+    <div class="dashboard-cards">
+      <div class="stat-card">
+        <div class="stat-card-header"><span class="stat-icon">💠</span><span>Collection</span></div>
+        <div class="stat-main" id="collectionMain">—</div>
+        <div class="stat-sub" id="collectionSub">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-header"><span class="stat-icon">🎼</span><span>Artists</span></div>
+        <div class="stat-main" id="artistMain">—</div>
+        <div class="stat-sub" id="artistSub">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-header"><span class="stat-icon">💿</span><span>Formats</span></div>
+        <div class="stat-main" id="formatMain">—</div>
+        <div class="stat-sub" id="formatSub">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-header"><span class="stat-icon">🕰</span><span>History</span></div>
+        <div class="stat-main" id="historyMain">—</div>
+        <div class="stat-sub" id="historySub">—</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="searchArea" style="display:none;">
+  <div class="search-wrap">
+    <span class="search-icon">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+    </span>
+    <input id="searchInput" type="search" placeholder="Artist, album, label, year, 70s, 1980s…" autocomplete="off" spellcheck="false">
+    <button class="search-clear" id="searchClear" title="Clear">✕</button>
+  </div>
+  <div class="filter-pills" id="formatPills"></div>
+  <div class="result-count" id="resultCount"></div>
+</div>
+
+<div class="sort-bar" id="sortBar" style="display:none;">
+  <select id="sortSelect">
+    <option value="artist">Sort by Artist (A–Z)</option>
+    <option value="yearAsc">Sort by Year (Oldest → Newest)</option>
+    <option value="yearDesc">Sort by Year (Newest → Oldest)</option>
+  </select>
+</div>
+
+<div id="setup"></div>
+<div id="loading" class="loading"></div>
+<div id="results" class="grid"></div>
+
+<script>
+  let globalReleases = [];
+  let activeFormat = null;
+  const detailsCache = new Map();
+
+  function txt(str) {
+    const el = document.createElement("span");
+    el.textContent = str ?? "";
+    return el.textContent;
+  }
+
+  const linkIconSVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`;
+
+  function showSetup() {
+    const box = document.createElement("div");
+    box.className = "setup-box";
+    box.innerHTML = `<h2>Setup</h2><label>Discogs Username</label><input id="usernameInput" placeholder="e.g., dhrandy" autocomplete="username"><label>API Token (optional)</label><input id="tokenInput" placeholder="Only needed for private collections" type="password" autocomplete="off"><p style="font-size:0.78rem;color:#777;margin:0 0 12px">Stored locally on this device only.</p>`;
+    const btn = document.createElement("button");
+    btn.textContent = "Save";
+    btn.addEventListener("click", saveSetup);
+    box.appendChild(btn);
+    document.getElementById("setup").appendChild(box);
+  }
+
+  function saveSetup() {
+    const username = document.getElementById("usernameInput").value.trim();
+    const token = document.getElementById("tokenInput").value.trim();
+    if (!username) { alert("Username is required."); return; }
+    if (!/^[\w.-]{1,50}$/.test(username)) { alert("Invalid username."); return; }
+    localStorage.setItem("discogs_username", username);
+    localStorage.setItem("discogs_token", token);
+    location.reload();
+  }
+
+  function initDashboardToggle() {
+    const body = document.getElementById("dashboardBody");
+    const toggleText = document.getElementById("dashboardToggleText");
+    const stored = localStorage.getItem("discogs_dashboard_collapsed");
+    if (stored === null || stored === "false") {
+      body.style.display = "block"; toggleText.textContent = "Hide";
+    } else {
+      body.style.display = "none"; toggleText.textContent = "Show";
+    }
+    document.getElementById("dashboardToggle").addEventListener("click", () => {
+      const v = body.style.display === "block";
+      body.style.display = v ? "none" : "block";
+      toggleText.textContent = v ? "Show" : "Hide";
+      localStorage.setItem("discogs_dashboard_collapsed", v ? "true" : "false");
+    });
+  }
+
+  async function fetchAllPages(baseURL) {
+    let page = 1, all = [];
+    while (true) {
+      const sep = baseURL.includes("?") ? "&" : "?";
+      const res = await fetch(`${baseURL}${sep}page=${page}&per_page=100`);
+      if (!res.ok) throw new Error(`API error: ${res.status} ${res.statusText}`);
+      const data = await res.json();
+      all = all.concat(data.releases || []);
+      const pages = data.pagination?.pages ?? 1;
+      if (page >= pages) break;
+      page++;
+    }
+    return all;
+  }
+
+  async function loadCollection() {
+    const username = localStorage.getItem("discogs_username");
+    const token = localStorage.getItem("discogs_token");
+    if (!username) { showSetup(); return; }
+
+    document.getElementById("header").textContent = "🎶 " + txt(username) + "'s Discogs Collection";
+
+    let API_URL = `https://api.discogs.com/users/${encodeURIComponent(username)}/collection/folders/0/releases`;
+    if (token) API_URL += `?token=${encodeURIComponent(token)}`;
+
+    const loadingEl = document.getElementById("loading");
+    loadingEl.textContent = "Loading your collection…";
+
+    try {
+      globalReleases = await fetchAllPages(API_URL);
+    } catch (err) {
+      loadingEl.textContent = "Failed to load collection: " + err.message;
+      return;
+    }
+
+    loadingEl.textContent = "";
+    document.getElementById("dashboard").style.display = "block";
+    document.getElementById("searchArea").style.display = "block";
+    document.getElementById("sortBar").style.display = "flex";
+
+    initDashboardToggle();
+    computeDashboard(globalReleases);
+    buildFormatPills(globalReleases);
+    initSearch();
+    applyFilters();
+    document.getElementById("sortSelect").addEventListener("change", applyFilters);
+  }
+
+  function buildFormatPills(releases) {
+    const counts = {};
+    releases.forEach(item => {
+      item.basic_information.formats?.forEach(f => {
+        const n = f.name || "Unknown";
+        counts[n] = (counts[n] || 0) + 1;
+      });
+    });
+    const container = document.getElementById("formatPills");
+    container.innerHTML = "";
+    const allPill = document.createElement("button");
+    allPill.className = "pill active";
+    allPill.textContent = "All";
+    allPill.addEventListener("click", () => setFormatPill(allPill, ""));
+    container.appendChild(allPill);
+    Object.entries(counts).sort((a, b) => b[1] - a[1]).forEach(([name, count]) => {
+      const pill = document.createElement("button");
+      pill.className = "pill";
+      pill.textContent = name + " (" + count + ")";
+      pill.addEventListener("click", () => setFormatPill(pill, name));
+      container.appendChild(pill);
+    });
+  }
+
+  function setFormatPill(clickedPill, formatName) {
+    document.querySelectorAll(".pill").forEach(p => p.classList.remove("active"));
+    clickedPill.classList.add("active");
+    activeFormat = formatName || null;
+    applyFilters();
+  }
+
+  function initSearch() {
+    const input = document.getElementById("searchInput");
+    const clear = document.getElementById("searchClear");
+    let timer;
+    input.addEventListener("input", () => {
+      clearTimeout(timer);
+      clear.style.display = input.value ? "block" : "none";
+      timer = setTimeout(applyFilters, 120);
+    });
+    clear.addEventListener("click", () => {
+      input.value = "";
+      clear.style.display = "none";
+      applyFilters();
+      input.focus();
+    });
+  }
+
+  function parseQuery(raw) {
+    const q = raw.trim().toLowerCase();
+    if (!q) return { type: "empty" };
+    // Decade: 70s, 1970s, 70's
+    const dm = q.match(/^(?:19|20)?(\d0)'?s$/);
+    if (dm) {
+      const d = parseInt(dm[1]);
+      const start = (d <= 30 ? 2000 : 1900) + d;
+      return { type: "decade", start, end: start + 9 };
+    }
+    // Exact year
+    const ym = q.match(/^(19\d{2}|20\d{2})$/);
+    if (ym) return { type: "year", year: parseInt(ym[1]) };
+    // Range 1965-1970
+    const rm = q.match(/^(19\d{2}|20\d{2})\s*[-]\s*(19\d{2}|20\d{2})$/);
+    if (rm) return { type: "range", start: parseInt(rm[1]), end: parseInt(rm[2]) };
+    return { type: "text", q };
+  }
+
+  function matchesQuery(item, parsed) {
+    if (parsed.type === "empty") return true;
+    const info = item.basic_information;
+    const year = Number(info.year) || 0;
+    if (parsed.type === "decade") return year >= parsed.start && year <= parsed.end;
+    if (parsed.type === "year")   return year === parsed.year;
+    if (parsed.type === "range")  return year >= parsed.start && year <= parsed.end;
+    const q = parsed.q;
+    const artist = (info.artists?.[0]?.name || "").toLowerCase();
+    const title  = (info.title || "").toLowerCase();
+    const label  = (info.labels?.[0]?.name || "").toLowerCase();
+    return artist.includes(q) || title.includes(q) || label.includes(q) || String(info.year || "").includes(q);
+  }
+
+  function matchesFormat(item) {
+    if (!activeFormat) return true;
+    return item.basic_information.formats?.some(f => f.name === activeFormat) ?? false;
+  }
+
+  function artistSortKey(name) {
+    return (name || "").toLowerCase().replace(/\s*\(\d+\)\s*$/, "").replace(/^(the|a|an)\s+/, "");
+  }
+
+  function applyFilters() {
+    const query = document.getElementById("searchInput")?.value ?? "";
+    const parsed = parseQuery(query);
+    const mode = document.getElementById("sortSelect").value;
+    let results = globalReleases.filter(item => matchesQuery(item, parsed) && matchesFormat(item));
+    if (mode === "artist") {
+      const keys = new Map(results.map(i => [i, artistSortKey(i.basic_information.artists?.[0]?.name)]));
+      results.sort((a, b) => keys.get(a).localeCompare(keys.get(b)));
+    } else if (mode === "yearAsc") {
+      results.sort((a, b) => (a.basic_information.year || 9999) - (b.basic_information.year || 9999));
+    } else if (mode === "yearDesc") {
+      results.sort((a, b) => (b.basic_information.year || 0) - (a.basic_information.year || 0));
+    }
+    renderGrid(results);
+    updateResultCount(results.length, globalReleases.length, parsed, query);
+  }
+
+  function updateResultCount(shown, total, parsed, query) {
+    const el = document.getElementById("resultCount");
+    if (!el) return;
+    if (shown === total && !activeFormat) { el.innerHTML = ""; return; }
+    let label = "";
+    if (parsed.type === "decade") label = parsed.start + "s";
+    else if (parsed.type === "year") label = String(parsed.year);
+    else if (parsed.type === "range") label = parsed.start + "–" + parsed.end;
+    else if (parsed.type === "text" && query.trim()) label = '"' + query.trim() + '"';
+    const fmt = activeFormat ? " · " + activeFormat : "";
+    const flt = label ? " matching " + label : "";
+    el.innerHTML = "<span>" + shown + "</span> of " + total + " records" + flt + fmt;
+  }
+
+  function renderGrid(releases) {
+    const container = document.getElementById("results");
+    container.innerHTML = "";
+    if (releases.length === 0) {
+      const empty = document.createElement("div");
+      empty.style.cssText = "grid-column:1/-1;color:#666;font-size:0.9rem;padding:20px 0;";
+      empty.textContent = "No records match your search.";
+      container.appendChild(empty);
+      return;
+    }
+    const fragment = document.createDocumentFragment();
+    releases.forEach(item => {
+      const info = item.basic_information;
+      const releaseId = info.id;
+      const labelName = info.labels?.[0]?.name ?? null;
+      const labelCatno = info.labels?.[0]?.catno ?? null;
+      let labelText = "";
+      if (labelName && labelName !== "Not On Label") {
+        labelText = labelName;
+        if (labelCatno && labelCatno.toLowerCase() !== "none") labelText += " · " + labelCatno;
+      }
+      const card = document.createElement("div");
+      card.className = "card";
+      const img = document.createElement("img");
+      img.className = "cover"; img.src = info.cover_image || ""; img.alt = txt(info.title); img.loading = "lazy";
+      const titleRow = document.createElement("div");
+      titleRow.className = "card-title-row";
+      const titleEl = document.createElement("div");
+      titleEl.className = "title"; titleEl.textContent = info.title || "";
+      const link = document.createElement("a");
+      link.className = "discogs-link";
+      link.href = "https://www.discogs.com/release/" + encodeURIComponent(releaseId);
+      link.target = "_blank"; link.rel = "noopener noreferrer"; link.title = "View on Discogs";
+      link.innerHTML = linkIconSVG;
+      link.addEventListener("click", e => e.stopPropagation());
+      titleRow.appendChild(titleEl); titleRow.appendChild(link);
+      const metaEl = document.createElement("div");
+      metaEl.className = "meta";
+      metaEl.textContent = (info.artists?.[0]?.name || "Unknown") + " · " + (info.year || "Unknown");
+      const detailsEl = document.createElement("div");
+      detailsEl.className = "details"; detailsEl.id = "details-" + releaseId;
+      card.appendChild(img); card.appendChild(titleRow); card.appendChild(metaEl);
+      if (labelText) {
+        const labelEl = document.createElement("div");
+        labelEl.className = "label-meta"; labelEl.textContent = "🏷 " + labelText;
+        card.appendChild(labelEl);
+      }
+      card.appendChild(detailsEl);
+      card.addEventListener("click", () => loadDetails(releaseId));
+      fragment.appendChild(card);
+    });
+    container.appendChild(fragment);
+  }
+
+  async function loadDetails(releaseId) {
+    const detailsEl = document.getElementById("details-" + releaseId);
+    if (!detailsEl) return;
+    if (detailsEl.style.display === "block") { detailsEl.style.display = "none"; return; }
+    detailsEl.style.display = "block";
+    if (detailsCache.has(releaseId)) { detailsEl.innerHTML = detailsCache.get(releaseId); return; }
+    detailsEl.textContent = "Loading…";
+    try {
+      const res = await fetch("https://api.discogs.com/releases/" + encodeURIComponent(releaseId));
+      if (!res.ok) throw new Error(res.status + " " + res.statusText);
+      const data = await res.json();
+      if (!data.tracklist || data.tracklist.length === 0) { detailsEl.textContent = "No tracklist available."; return; }
+      const frag = document.createDocumentFragment();
+      let totalSeconds = 0;
+      data.tracklist.forEach((track, index) => {
+        const pos = (track.position || "").replace(/[-]+$/g, "").trim();
+        const time = track.duration || "";
+        const trackEl = document.createElement("div");
+        trackEl.className = "track";
+        trackEl.textContent = (pos || (index + 1)) + ". " + (track.title || "") + (time ? " — " + time : "");
+        frag.appendChild(trackEl);
+        if (time.includes(":")) {
+          const [m, s] = time.split(":").map(Number);
+          totalSeconds += (m * 60) + s;
+        }
+      });
+      const runtimeEl = document.createElement("div");
+      runtimeEl.className = "runtime";
+      runtimeEl.textContent = "Total runtime: " + Math.floor(totalSeconds / 60) + ":" + String(totalSeconds % 60).padStart(2, "0");
+      frag.appendChild(runtimeEl);
+      detailsEl.innerHTML = "";
+      detailsEl.appendChild(frag);
+      detailsCache.set(releaseId, detailsEl.innerHTML);
+    } catch (err) {
+      detailsEl.textContent = "Could not load tracklist: " + err.message;
+    }
+  }
+
+  function computeDashboard(releases) {
+    const artistCounts = {}, formatCounts = {};
+    let oldest = Infinity, newest = -Infinity, yearSum = 0, yearCount = 0;
+    releases.forEach(item => {
+      const info = item.basic_information;
+      if (info.artists?.length > 0) { const n = info.artists[0].name; artistCounts[n] = (artistCounts[n] || 0) + 1; }
+      info.formats?.forEach(f => { const n = f.name || "Unknown"; formatCounts[n] = (formatCounts[n] || 0) + 1; });
+      if (info.year) {
+        const y = Number(info.year);
+        if (!isNaN(y)) { if (y < oldest) oldest = y; if (y > newest) newest = y; yearSum += y; yearCount++; }
+      }
+    });
+    const total = releases.length;
+    const uniqueArtists = Object.keys(artistCounts).length;
+    const topArtist = Object.entries(artistCounts).sort((a, b) => b[1] - a[1])[0];
+    const sortedFormats = Object.entries(formatCounts).sort((a, b) => b[1] - a[1]);
+    const mainFormat = sortedFormats[0];
+    const avgYear = yearCount > 0 ? Math.round(yearSum / yearCount) : null;
+    const hasYears = yearCount > 0 && isFinite(oldest);
+    document.getElementById("collectionMain").textContent = total + " releases";
+    document.getElementById("collectionSub").textContent = uniqueArtists + " unique artists";
+    if (topArtist) { document.getElementById("artistMain").textContent = topArtist[0] + " (" + topArtist[1] + ")"; document.getElementById("artistSub").textContent = uniqueArtists + " unique artists"; }
+    else { document.getElementById("artistMain").textContent = "No artist data"; document.getElementById("artistSub").textContent = "—"; }
+    if (mainFormat) { document.getElementById("formatMain").textContent = mainFormat[0] + " (" + mainFormat[1] + ")"; document.getElementById("formatSub").textContent = sortedFormats.map(([n, c]) => n + " (" + c + ")").join(", "); }
+    else { document.getElementById("formatMain").textContent = "No format data"; document.getElementById("formatSub").textContent = "—"; }
+    if (hasYears) { document.getElementById("historyMain").textContent = "Oldest: " + oldest + " · Newest: " + newest; document.getElementById("historySub").textContent = avgYear ? "Average year: " + avgYear : "Average year: —"; }
+    else { document.getElementById("historyMain").textContent = "No year data"; document.getElementById("historySub").textContent = "—"; }
+  }
+
+  loadCollection();
+</script>
+</body>
+</html>
