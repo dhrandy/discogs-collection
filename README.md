@@ -18,6 +18,7 @@ Don't use your token on this site. If there's an error, make sure your Discogs c
 
 ## Features
 
+- **Random Button** — when you can’t decide what to play, this picks a random album from your library for you.
 - **Browse your full collection** with album art in a responsive grid
 - **Live search** — filter by artist, album title, label, exact year, decade (`70s`, `1980s`), or year range (`1965-1972`)
 - **Format filter pills** — one-tap to show only Vinyl, CD, Box Set, etc.
@@ -43,7 +44,7 @@ Double-click the file, or drag it into any modern browser (Chrome, Safari, Firef
 
 ### 3. Enter your Discogs username
 
-On first launch you'll see a setup screen. Enter your Discogs username (e.g. `dhrandy`) and click **Save**.
+On first launch, you'll see a setup screen. Enter your Discogs username (e.g. `dhrandy`) and click **Save**.
 
 > Your username is saved to your browser's `localStorage` so you only need to enter it once.
 
@@ -92,7 +93,7 @@ Use the sort dropdown to order results by:
 
 ### Tracklist
 
-Tap any album card to expand its tracklist with track durations and total runtime. Tap again to collapse. Tracklists are cached after the first load so reopening is instant.
+Tap any album card to expand its tracklist with track durations and total runtime. Tap again to collapse. Tracklists are cached after the first load, so reopening is instant.
 
 ### Discogs Link
 
@@ -146,4 +147,4 @@ Works in all modern browsers. Requires JavaScript enabled.
 
 ## License
 
-This project is released for personal use. The Discogs name and API are property of [Discogs](https://www.discogs.com). This tool is not affiliated with or endorsed by Discogs.
+This project is released for personal use. The Discogs name and API are the property of [Discogs](https://www.discogs.com). This tool is not affiliated with or endorsed by Discogs.
