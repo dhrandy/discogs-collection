@@ -4,20 +4,15 @@ A clean, mobile-friendly single-file web app for browsing your Discogs vinyl (or
 
 ![Static Badge](https://img.shields.io/badge/single--file-HTML-blue) ![Static Badge](https://img.shields.io/badge/no_dependencies-✓-blue) ![Static Badge](https://img.shields.io/badge/mobile--friendly-✓-blue)
 
----
-
 ## Demo Site
 
 https://darling-cascaron-7abcbc.netlify.app/
 
----
 ## Screenshot
 
 ![Screenshot_1-3-2026_141931_collection compact synology me](https://github.com/user-attachments/assets/cfaf8c69-c688-423a-a294-67fe3d76fb4e)
 
 ---
-
-
 
 ## Features
 
