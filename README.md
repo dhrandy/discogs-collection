@@ -6,6 +6,12 @@ A clean, mobile-friendly single-file web app for browsing your Discogs vinyl (or
 
 ---
 
+![Screenshot_1-3-2026_141629_collection compact synology me](https://github.com/user-attachments/assets/c3fa54f6-bdb5-4fe9-bdf5-ad6e0cf15c76)
+
+![Screenshot_1-3-2026_141541_collection compact synology me](https://github.com/user-attachments/assets/c2612a8a-bef3-475a-a167-89c684b1ebec)
+
+---
+
 ## Features
 
 - **Browse your full collection** with album art in a responsive grid
