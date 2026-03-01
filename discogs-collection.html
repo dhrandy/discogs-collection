@@ -38,9 +38,35 @@
     .pill:hover { border-color: #555; color: #eee; }
     .pill.active { background: #3b82f6; border-color: #3b82f6; color: #111; font-weight: 600; }
 
-    /* Sort bar */
+    /* Sort + random bar */
     .sort-bar { margin-top: 8px; margin-bottom: 4px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-    select { background: #1b1b1b; color: #eee; border: 1px solid #333; padding: 8px 12px; border-radius: 4px; font-size: 0.9rem; flex: 1; min-width: 0; width: 100%; }
+    select { background: #1b1b1b; color: #eee; border: 1px solid #333; padding: 8px 12px; border-radius: 4px; font-size: 0.9rem; flex: 1; min-width: 0; }
+
+    #randomBtn {
+      flex-shrink: 0;
+      width: auto;
+      padding: 8px 14px;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 4px;
+      color: #eee;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s, border-color 0.15s;
+      white-space: nowrap;
+    }
+    #randomBtn:hover { background: #222; border-color: #3b82f6; color: #3b82f6; }
+    #randomBtn .dice { font-size: 1.1rem; display: inline-block; transition: transform 0.3s; }
+    #randomBtn.spinning .dice { animation: spin 0.4s ease-out; }
+    @keyframes spin {
+      0%   { transform: rotate(0deg) scale(1); }
+      40%  { transform: rotate(180deg) scale(1.3); }
+      100% { transform: rotate(360deg) scale(1); }
+    }
 
     /* Result count */
     .result-count { font-size: 0.78rem; color: #666; margin-top: 6px; min-height: 1.2em; }
@@ -68,6 +94,7 @@
     .card { background: #1b1b1b; border: 1px solid #333; border-radius: 6px; padding: 8px; cursor: pointer; transition: transform 0.15s ease; min-width: 0; overflow: hidden; }
     @media (min-width: 600px) { .card { padding: 10px; } }
     .card:hover { transform: scale(1.02); }
+    .card.highlighted { border-color: #3b82f6; box-shadow: 0 0 0 2px #3b82f620; }
 
     .cover { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 3px; background: #000; display: block; }
 
@@ -89,6 +116,121 @@
     .track { margin: 3px 0; color: #ccc; line-height: 1.4; }
     .runtime { margin-top: 8px; font-weight: 600; color: #60a5fa; }
     .loading { font-size: 0.9rem; color: #aaa; margin-top: 6px; }
+
+    /* Random Record Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      pointer-events: none;
+    }
+    .modal-overlay.visible {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .modal {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 420px;
+      max-height: 90vh;
+      overflow-y: auto;
+      transform: scale(0.92) translateY(12px);
+      transition: transform 0.25s ease;
+      position: relative;
+    }
+    .modal-overlay.visible .modal {
+      transform: scale(1) translateY(0);
+    }
+    .modal-cover-wrap {
+      position: relative;
+    }
+    .modal-cover {
+      width: 100%;
+      aspect-ratio: 1/1;
+      object-fit: cover;
+      border-radius: 10px 10px 0 0;
+      display: block;
+    }
+    .modal-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 32px;
+      height: 32px;
+      min-width: 32px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.6);
+      border: none;
+      color: #eee;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      padding: 0;
+      backdrop-filter: blur(4px);
+      transition: background 0.15s;
+    }
+    .modal-close:hover { background: rgba(0,0,0,0.85); }
+    .modal-body { padding: 16px; }
+    .modal-title { font-size: 1.15rem; font-weight: 700; line-height: 1.3; margin: 0 0 4px; }
+    .modal-artist { font-size: 0.9rem; color: #aaa; margin-bottom: 2px; }
+    .modal-meta { font-size: 0.82rem; color: #666; margin-bottom: 14px; }
+    .modal-actions { display: flex; gap: 8px; margin-bottom: 16px; }
+    .modal-btn-primary {
+      flex: 1;
+      padding: 10px;
+      background: #3b82f6;
+      border: none;
+      border-radius: 6px;
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background 0.15s;
+      width: auto;
+    }
+    .modal-btn-primary:hover { background: #2563eb; }
+    .modal-btn-secondary {
+      flex: 1;
+      padding: 10px;
+      background: #222;
+      border: 1px solid #333;
+      border-radius: 6px;
+      color: #eee;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background 0.15s, border-color 0.15s;
+      width: auto;
+    }
+    .modal-btn-secondary:hover { background: #2a2a2a; border-color: #444; }
+    .modal-tracklist { border-top: 1px solid #2a2a2a; padding-top: 12px; }
+    .modal-tracklist-title { font-size: 0.78rem; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+    .modal-track { font-size: 0.82rem; color: #ccc; padding: 3px 0; line-height: 1.4; display: flex; justify-content: space-between; gap: 8px; }
+    .modal-track-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .modal-track-dur { color: #555; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+    .modal-runtime { margin-top: 10px; font-size: 0.82rem; font-weight: 600; color: #60a5fa; }
+    .modal-loading { color: #555; font-size: 0.85rem; padding: 12px 0; text-align: center; }
   </style>
 </head>
 <body>
@@ -149,15 +291,44 @@
     <option value="yearAsc">Sort by Year (Oldest → Newest)</option>
     <option value="yearDesc">Sort by Year (Newest → Oldest)</option>
   </select>
+  <button id="randomBtn" title="Pick a random record">
+    <span class="dice">🎲</span> Random
+  </button>
 </div>
 
 <div id="setup"></div>
 <div id="loading" class="loading"></div>
 <div id="results" class="grid"></div>
 
+<!-- Random Record Modal -->
+<div class="modal-overlay" id="randomModal" role="dialog" aria-modal="true" aria-label="Random record">
+  <div class="modal" id="modalContent">
+    <div class="modal-cover-wrap">
+      <img class="modal-cover" id="modalCover" src="" alt="">
+      <button class="modal-close" id="modalClose" title="Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-title" id="modalTitle"></div>
+      <div class="modal-artist" id="modalArtist"></div>
+      <div class="modal-meta" id="modalMeta"></div>
+      <div class="modal-actions">
+        <a class="modal-btn-primary" id="modalDiscogsLink" href="#" target="_blank" rel="noopener noreferrer">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          View on Discogs
+        </a>
+        <button class="modal-btn-secondary" id="modalPickAnother">
+          <span>🎲</span> Pick Another
+        </button>
+      </div>
+      <div class="modal-tracklist" id="modalTracklist"></div>
+    </div>
+  </div>
+</div>
+
 <script>
   let globalReleases = [];
   let activeFormat = null;
+  let currentFilteredReleases = [];
   const detailsCache = new Map();
 
   function txt(str) {
@@ -250,10 +421,166 @@
     computeDashboard(globalReleases);
     buildFormatPills(globalReleases);
     initSearch();
+    initRandom();
     applyFilters();
     document.getElementById("sortSelect").addEventListener("change", applyFilters);
   }
 
+  // ── Random Record ────────────────────────────────────────────────
+  function initRandom() {
+    const btn = document.getElementById("randomBtn");
+    const overlay = document.getElementById("randomModal");
+    const closeBtn = document.getElementById("modalClose");
+    const pickAnotherBtn = document.getElementById("modalPickAnother");
+
+    btn.addEventListener("click", () => {
+      // Spin animation
+      btn.classList.add("spinning");
+      setTimeout(() => btn.classList.remove("spinning"), 400);
+      openRandomModal();
+    });
+
+    pickAnotherBtn.addEventListener("click", () => {
+      openRandomModal();
+    });
+
+    closeBtn.addEventListener("click", closeModal);
+
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) closeModal();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeModal();
+    });
+  }
+
+  function openRandomModal() {
+    const pool = currentFilteredReleases.length > 0 ? currentFilteredReleases : globalReleases;
+    if (pool.length === 0) return;
+
+    const item = pool[Math.floor(Math.random() * pool.length)];
+    const info = item.basic_information;
+    const releaseId = info.id;
+
+    // Populate modal fields
+    document.getElementById("modalCover").src = info.cover_image || "";
+    document.getElementById("modalCover").alt = txt(info.title);
+    document.getElementById("modalTitle").textContent = info.title || "";
+    document.getElementById("modalArtist").textContent = info.artists?.[0]?.name || "";
+
+    const labelName = info.labels?.[0]?.name;
+    const labelCatno = info.labels?.[0]?.catno;
+    let metaParts = [];
+    if (info.year) metaParts.push(info.year);
+    if (labelName && labelName !== "Not On Label") {
+      let l = labelName;
+      if (labelCatno && labelCatno.toLowerCase() !== "none") l += " · " + labelCatno;
+      metaParts.push(l);
+    }
+    document.getElementById("modalMeta").textContent = metaParts.join(" · ");
+    document.getElementById("modalDiscogsLink").href = "https://www.discogs.com/release/" + encodeURIComponent(releaseId);
+
+    // Highlight card in grid
+    document.querySelectorAll(".card.highlighted").forEach(c => c.classList.remove("highlighted"));
+    const card = document.getElementById("details-" + releaseId)?.closest(".card");
+    if (card) {
+      card.classList.add("highlighted");
+      card.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
+    // Load tracklist into modal
+    loadModalTracklist(releaseId);
+
+    // Show modal
+    const overlay = document.getElementById("randomModal");
+    overlay.classList.add("visible");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeModal() {
+    const overlay = document.getElementById("randomModal");
+    overlay.classList.remove("visible");
+    document.body.style.overflow = "";
+    document.querySelectorAll(".card.highlighted").forEach(c => c.classList.remove("highlighted"));
+  }
+
+  async function loadModalTracklist(releaseId) {
+    const container = document.getElementById("modalTracklist");
+    container.innerHTML = "";
+
+    const titleEl = document.createElement("div");
+    titleEl.className = "modal-tracklist-title";
+    titleEl.textContent = "Tracklist";
+    container.appendChild(titleEl);
+
+    // Use cache if available
+    if (detailsCache.has(releaseId)) {
+      renderModalTracklist(container, detailsCache.get(releaseId + "_raw"));
+      return;
+    }
+
+    const loadingEl = document.createElement("div");
+    loadingEl.className = "modal-loading";
+    loadingEl.textContent = "Loading tracklist…";
+    container.appendChild(loadingEl);
+
+    try {
+      const res = await fetch("https://api.discogs.com/releases/" + encodeURIComponent(releaseId));
+      if (!res.ok) throw new Error(res.status + " " + res.statusText);
+      const data = await res.json();
+
+      // Also cache for the main grid details
+      if (data.tracklist) {
+        detailsCache.set(releaseId + "_raw", data.tracklist);
+      }
+
+      loadingEl.remove();
+      if (!data.tracklist || data.tracklist.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "modal-loading";
+        empty.textContent = "No tracklist available.";
+        container.appendChild(empty);
+        return;
+      }
+      renderModalTracklist(container, data.tracklist);
+    } catch (err) {
+      loadingEl.textContent = "Could not load tracklist.";
+    }
+  }
+
+  function renderModalTracklist(container, tracklist) {
+    let totalSeconds = 0;
+    tracklist.forEach((track, index) => {
+      const pos = (track.position || "").replace(/[-]+$/g, "").trim();
+      const time = track.duration || "";
+      const row = document.createElement("div");
+      row.className = "modal-track";
+      const nameEl = document.createElement("span");
+      nameEl.className = "modal-track-name";
+      nameEl.textContent = (pos || (index + 1)) + ". " + (track.title || "");
+      row.appendChild(nameEl);
+      if (time) {
+        const durEl = document.createElement("span");
+        durEl.className = "modal-track-dur";
+        durEl.textContent = time;
+        row.appendChild(durEl);
+      }
+      container.appendChild(row);
+      if (time.includes(":")) {
+        const [m, s] = time.split(":").map(Number);
+        totalSeconds += (m * 60) + s;
+      }
+    });
+    if (totalSeconds > 0) {
+      const rt = document.createElement("div");
+      rt.className = "modal-runtime";
+      rt.textContent = "Total runtime: " + Math.floor(totalSeconds / 60) + ":" + String(totalSeconds % 60).padStart(2, "0");
+      container.appendChild(rt);
+    }
+  }
+
+  // ── Format pills ─────────────────────────────────────────────────
   function buildFormatPills(releases) {
     const counts = {};
     releases.forEach(item => {
@@ -285,6 +612,7 @@
     applyFilters();
   }
 
+  // ── Search ────────────────────────────────────────────────────────
   function initSearch() {
     const input = document.getElementById("searchInput");
     const clear = document.getElementById("searchClear");
@@ -305,17 +633,14 @@
   function parseQuery(raw) {
     const q = raw.trim().toLowerCase();
     if (!q) return { type: "empty" };
-    // Decade: 70s, 1970s, 70's
     const dm = q.match(/^(?:19|20)?(\d0)'?s$/);
     if (dm) {
       const d = parseInt(dm[1]);
       const start = (d <= 30 ? 2000 : 1900) + d;
       return { type: "decade", start, end: start + 9 };
     }
-    // Exact year
     const ym = q.match(/^(19\d{2}|20\d{2})$/);
     if (ym) return { type: "year", year: parseInt(ym[1]) };
-    // Range 1965-1970
     const rm = q.match(/^(19\d{2}|20\d{2})\s*[-]\s*(19\d{2}|20\d{2})$/);
     if (rm) return { type: "range", start: parseInt(rm[1]), end: parseInt(rm[2]) };
     return { type: "text", q };
@@ -357,6 +682,7 @@
     } else if (mode === "yearDesc") {
       results.sort((a, b) => (b.basic_information.year || 0) - (a.basic_information.year || 0));
     }
+    currentFilteredReleases = results;
     renderGrid(results);
     updateResultCount(results.length, globalReleases.length, parsed, query);
   }
@@ -441,6 +767,7 @@
       if (!res.ok) throw new Error(res.status + " " + res.statusText);
       const data = await res.json();
       if (!data.tracklist || data.tracklist.length === 0) { detailsEl.textContent = "No tracklist available."; return; }
+      if (data.tracklist) detailsCache.set(releaseId + "_raw", data.tracklist);
       const frag = document.createDocumentFragment();
       let totalSeconds = 0;
       data.tracklist.forEach((track, index) => {
