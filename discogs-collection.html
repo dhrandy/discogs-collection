@@ -79,13 +79,32 @@
     .stat-main { font-size: 0.85rem; margin-bottom: 3px; word-break: break-word; }
     .stat-sub { font-size: 0.75rem; color: #aaa; word-break: break-word; }
 
-    /* Grid */
+    /* Grid / Shelf toggle */
+    #gridToggleBtn { flex-shrink: 0; width: auto; padding: 8px 10px; background: #1a1a1a; border: 1px solid #333; border-radius: 4px; color: #777; font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+    #gridToggleBtn:hover { color: #eee; border-color: #555; }
+
+    /* Grid (default) */
     .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 10px; }
     @media (min-width: 600px) { .grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; margin-top: 20px; } }
     .card { background: #1b1b1b; border: 1px solid #333; border-radius: 6px; padding: 8px; cursor: pointer; min-width: 0; overflow: hidden; }
     @media (min-width: 600px) { .card { padding: 10px; } }
     .card:hover { }
     .card.highlighted { border-color: #3b82f6; box-shadow: 0 0 0 2px #3b82f620; }
+
+    /* Shelf layout */
+    .grid.shelf { grid-template-columns: 1fr; gap: 0; }
+    .grid.shelf .card { display: flex; gap: 12px; align-items: flex-start; border-radius: 0; border-left: none; border-right: none; border-top: none; border-bottom: 1px solid #1e1e1e; padding: 10px 4px; }
+    .grid.shelf .card:first-child { border-top: 1px solid #1e1e1e; }
+    .grid.shelf .cover-wrap { flex-shrink: 0; width: 64px; }
+    .grid.shelf .cover { border-radius: 2px; }
+    .grid.shelf .card-body { flex: 1; min-width: 0; }
+    .grid.shelf .card-title-row { margin-top: 0; }
+    .grid.shelf .title { font-size: 0.9rem; -webkit-line-clamp: 1; }
+    .grid.shelf .meta { font-size: 0.8rem; }
+    .grid.shelf .label-meta { font-size: 0.75rem; }
+    .grid.shelf .genre-tags { margin-top: 3px; }
+    .grid.shelf .details { font-size: 0.8rem; }
+    .grid.shelf .pressings { font-size: 0.8rem; }
 
     .cover-wrap { position: relative; }
     .cover { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 3px; background: #000; display: block; }
@@ -122,6 +141,25 @@
 
     /* Wantlist note on card */
     .want-note { margin-top: 4px; font-size: 0.68rem; color: #a78bfa; }
+
+    /* Copies count badge (top-right of cover) */
+    .copies-badge { position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.78); border: 1px solid rgba(255,255,255,0.15); color: #fbbf24; font-size: 0.65rem; font-weight: 700; padding: 2px 6px; border-radius: 3px; letter-spacing: 0.02em; }
+
+    /* Pressings list inside expanded card */
+    .pressings { margin-top: 8px; padding-top: 8px; border-top: 1px solid #2a2a2a; display: none; }
+    .pressing-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 5px 0; border-bottom: 1px solid #1e1e1e; font-size: 0.75rem; color: #aaa; cursor: pointer; }
+    .pressing-row:last-child { border-bottom: none; }
+    .pressing-row:hover { color: #eee; }
+    .pressing-info { flex: 1; min-width: 0; }
+    .pressing-fmt { font-size: 0.68rem; color: #3b82f6; font-weight: 600; margin-top: 1px; }
+    .pressing-link { flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 3px; background: #222; border: 1px solid #333; color: #3b82f6; text-decoration: none; }
+    .pressing-link:hover { background: #3b82f6; color: #111; }
+
+    /* Also in collection (modal) */
+    .modal-also { margin-top: 12px; padding-top: 12px; border-top: 1px solid #2a2a2a; font-size: 0.82rem; }
+    .modal-also-title { font-size: 0.75rem; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+    .modal-also-item { color: #aaa; padding: 2px 0; }
+    .modal-also-item span { color: #eee; }
 
     /* Modal */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 16px; opacity: 0; pointer-events: none; }
@@ -223,6 +261,10 @@
   <button id="randomBtn" title="Pick a random record">
     <span class="dice">🎲</span> Random
   </button>
+  <button id="gridToggleBtn" title="Toggle view">
+    <svg id="gridIcon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+    <svg id="shelfIcon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
 </div>
 
 <div id="setup"></div>
@@ -246,6 +288,10 @@
           View on Discogs
         </a>
         <button class="modal-btn-secondary" id="modalPickAnother"><span>🎲</span> Pick Another</button>
+      </div>
+      <div class="modal-also" id="modalAlso" style="display:none;">
+        <div class="modal-also-title">Also in your collection</div>
+        <div id="modalAlsoList"></div>
       </div>
       <div class="modal-tracklist" id="modalTracklist"></div>
     </div>
@@ -363,6 +409,7 @@
     document.getElementById("searchArea").style.display = "block";
     document.getElementById("sortBar").style.display = "flex";
 
+    buildDuplicateMap();
     initDashboardToggle();
     computeDashboard(globalReleases);
     buildFormatPills(globalReleases);
@@ -371,8 +418,18 @@
     initRandom();
     initLogout();
     initTabs();
+    // Restore saved sort before first render
+    const savedSort = localStorage.getItem("discogs_sort");
+    if (savedSort) document.getElementById("sortSelect").value = savedSort;
+
     applyFilters();
-    document.getElementById("sortSelect").addEventListener("change", applyFilters);
+
+    document.getElementById("sortSelect").addEventListener("change", () => {
+      localStorage.setItem("discogs_sort", document.getElementById("sortSelect").value);
+      applyFilters();
+    });
+
+    initGridToggle();
   }
 
   async function loadWantlist(username, auth) {
@@ -617,11 +674,25 @@
     const isWantlist = activeTab === "wantlist";
     const fragment = document.createDocumentFragment();
 
+    // Group releases by normalised title so duplicates show as one card
+    const seen = new Map(); // normTitle -> first item index in grouped array
+    const grouped = [];
     releases.forEach(item => {
-      const info = item.basic_information;
-      const releaseId = info.id;
+      const key = normTitle(item.basic_information.title);
+      if (seen.has(key)) {
+        grouped[seen.get(key)].copies.push(item);
+      } else {
+        seen.set(key, grouped.length);
+        grouped.push({ primary: item, copies: [item] });
+      }
+    });
 
-      // Label text
+    grouped.forEach(({ primary, copies }) => {
+      const info = primary.basic_information;
+      const releaseId = info.id;
+      const totalCopies = copies.length;
+
+      // Label text (from primary)
       const labelName = info.labels?.[0]?.name ?? null;
       const labelCatno = info.labels?.[0]?.catno ?? null;
       let labelText = "";
@@ -630,7 +701,7 @@
         if (labelCatno && labelCatno.toLowerCase() !== "none") labelText += " · " + labelCatno;
       }
 
-      // Format names for badges
+      // Formats from primary
       const formats = info.formats?.map(f => f.name).filter(Boolean) || [];
 
       // Genres + styles for tags
@@ -639,7 +710,7 @@
       const card = document.createElement("div");
       card.className = "card";
 
-      // Cover wrap (holds badges)
+      // Cover wrap
       const coverWrap = document.createElement("div");
       coverWrap.className = "cover-wrap";
       const img = document.createElement("img");
@@ -659,7 +730,19 @@
         coverWrap.appendChild(badgeRow);
       }
 
+      // Copies count badge (top-right of cover)
+      if (totalCopies > 1) {
+        const copiesBadge = document.createElement("div");
+        copiesBadge.className = "copies-badge";
+        copiesBadge.textContent = totalCopies + "×";
+        coverWrap.appendChild(copiesBadge);
+      }
+
       card.appendChild(coverWrap);
+
+      // Card body (wraps all content after the cover for shelf layout)
+      const cardBody = document.createElement("div");
+      cardBody.className = "card-body";
 
       // Title row
       const titleRow = document.createElement("div");
@@ -673,19 +756,19 @@
       link.innerHTML = linkIconSVG;
       link.addEventListener("click", e => e.stopPropagation());
       titleRow.appendChild(titleEl); titleRow.appendChild(link);
-      card.appendChild(titleRow);
+      cardBody.appendChild(titleRow);
 
       // Artist · Year
       const metaEl = document.createElement("div");
       metaEl.className = "meta";
       metaEl.textContent = (info.artists?.[0]?.name || "Unknown") + " · " + (info.year || "Unknown");
-      card.appendChild(metaEl);
+      cardBody.appendChild(metaEl);
 
       // Label
       if (labelText) {
         const labelEl = document.createElement("div");
         labelEl.className = "label-meta"; labelEl.textContent = "🏷 " + labelText;
-        card.appendChild(labelEl);
+        cardBody.appendChild(labelEl);
       }
 
       // Genre tags
@@ -697,42 +780,90 @@
           tag.className = "genre-tag"; tag.textContent = g;
           tagRow.appendChild(tag);
         });
-        card.appendChild(tagRow);
+        cardBody.appendChild(tagRow);
       }
 
-      // Wantlist note (date added)
-      if (isWantlist && item.date_added) {
+      // Wantlist / recently added note (use primary)
+      if (isWantlist && primary.date_added) {
         const noteEl = document.createElement("div");
         noteEl.className = "want-note";
-        noteEl.textContent = "❤️ Wanted since " + new Date(item.date_added).getFullYear();
-        card.appendChild(noteEl);
+        noteEl.textContent = "❤️ Wanted since " + new Date(primary.date_added).getFullYear();
+        cardBody.appendChild(noteEl);
       }
-
-      // Recently added note for collection
-      if (!isWantlist && item.date_added) {
-        const d = new Date(item.date_added);
-        const now = new Date();
-        const days = Math.floor((now - d) / 86400000);
+      if (!isWantlist && primary.date_added) {
+        const d = new Date(primary.date_added);
+        const days = Math.floor((new Date() - d) / 86400000);
         if (days <= 30) {
           const noteEl = document.createElement("div");
-          noteEl.className = "want-note";
-          noteEl.style.color = "#86efac";
+          noteEl.className = "want-note"; noteEl.style.color = "#86efac";
           noteEl.textContent = days === 0 ? "🆕 Added today" : "🆕 Added " + days + " day" + (days === 1 ? "" : "s") + " ago";
-          card.appendChild(noteEl);
+          cardBody.appendChild(noteEl);
         }
       }
 
-      // Tracklist
-      const detailsEl = document.createElement("div");
-      detailsEl.className = "details"; detailsEl.id = "details-" + releaseId;
-      card.appendChild(detailsEl);
-      card.addEventListener("click", () => loadDetails(releaseId));
+      // If multiple copies: pressings list (collapsed), else single tracklist
+      if (totalCopies > 1) {
+        const pressingsEl = document.createElement("div");
+        pressingsEl.className = "pressings";
+        pressingsEl.id = "pressings-" + releaseId;
+
+        copies.forEach(copy => {
+          const ci = copy.basic_information;
+          const cid = ci.id;
+          const row = document.createElement("div");
+          row.className = "pressing-row";
+          row.addEventListener("click", e => { e.stopPropagation(); loadDetails(cid); });
+
+          const infoDiv = document.createElement("div");
+          infoDiv.className = "pressing-info";
+          const yearLabel = ci.labels?.[0]?.name && ci.labels[0].name !== "Not On Label"
+            ? (ci.year || "?") + " · " + ci.labels[0].name
+            : (ci.year || "Unknown");
+          infoDiv.textContent = yearLabel;
+          const fmtDiv = document.createElement("div");
+          fmtDiv.className = "pressing-fmt";
+          fmtDiv.textContent = ci.formats?.map(f => f.name).join(", ") || "";
+          infoDiv.appendChild(fmtDiv);
+
+          const cLink = document.createElement("a");
+          cLink.className = "pressing-link";
+          cLink.href = "https://www.discogs.com/release/" + encodeURIComponent(cid);
+          cLink.target = "_blank"; cLink.rel = "noopener noreferrer"; cLink.title = "View on Discogs";
+          cLink.innerHTML = linkIconSVG;
+          cLink.addEventListener("click", e => e.stopPropagation());
+
+          row.appendChild(infoDiv); row.appendChild(cLink);
+          pressingsEl.appendChild(row);
+
+          // Tracklist for each pressing (injected below the pressing row when clicked)
+          const detailsEl = document.createElement("div");
+          detailsEl.className = "details"; detailsEl.id = "details-" + cid;
+          pressingsEl.appendChild(detailsEl);
+        });
+
+        cardBody.appendChild(pressingsEl);
+        card.appendChild(cardBody);
+        // Click card body = toggle pressings
+        card.addEventListener("click", () => {
+          const el = document.getElementById("pressings-" + releaseId);
+          if (el) el.style.display = el.style.display === "block" ? "none" : "block";
+        });
+      } else {
+        // Single copy — tracklist directly on card
+        const detailsEl = document.createElement("div");
+        detailsEl.className = "details"; detailsEl.id = "details-" + releaseId;
+        cardBody.appendChild(detailsEl);
+        card.appendChild(cardBody);
+        card.addEventListener("click", () => loadDetails(releaseId));
+      }
+
       fragment.appendChild(card);
     });
     container.appendChild(fragment);
   }
 
   // ── Tracklist ─────────────────────────────────────────────────────
+
   async function loadDetails(releaseId) {
     const detailsEl = document.getElementById("details-" + releaseId);
     if (!detailsEl) return;
@@ -747,6 +878,8 @@
       if (!data.tracklist || data.tracklist.length === 0) { detailsEl.textContent = "No tracklist available."; return; }
       if (data.tracklist) detailsCache.set(releaseId + "_raw", data.tracklist);
       const frag = document.createDocumentFragment();
+
+
       let totalSeconds = 0;
       data.tracklist.forEach((track, index) => {
         const pos = (track.position || "").replace(/[-]+$/g, "").trim();
@@ -803,6 +936,32 @@
     }
     document.getElementById("modalMeta").textContent = metaParts.join(" · ");
     document.getElementById("modalDiscogsLink").href = "https://www.discogs.com/release/" + encodeURIComponent(releaseId);
+
+    // "Also in collection" — other pressings of the same title
+    const titleKey = normTitle(info.title);
+    const others = (duplicateMap.get(titleKey) || []).filter(r => r.basic_information.id !== releaseId);
+    const alsoEl = document.getElementById("modalAlso");
+    const alsoList = document.getElementById("modalAlsoList");
+    alsoList.innerHTML = "";
+    if (others.length > 0) {
+      alsoEl.style.display = "block";
+      others.forEach(r => {
+        const bi = r.basic_information;
+        const div = document.createElement("div");
+        div.className = "modal-also-item";
+        const fmts = bi.formats?.map(f => f.name).join(", ") || "";
+        const lbl = bi.labels?.[0]?.name || "";
+        let desc = "";
+        if (bi.year) desc += bi.year;
+        if (lbl && lbl !== "Not On Label") desc += (desc ? " · " : "") + lbl;
+        if (fmts) desc += (desc ? " · " : "") + fmts;
+        div.textContent = desc || "Another pressing";
+        alsoList.appendChild(div);
+      });
+    } else {
+      alsoEl.style.display = "none";
+    }
+
     document.querySelectorAll(".card.highlighted").forEach(c => c.classList.remove("highlighted"));
     const card = document.getElementById("details-" + releaseId)?.closest(".card");
     if (card) { card.classList.add("highlighted"); card.scrollIntoView({ behavior: "smooth", block: "center" }); }
@@ -893,6 +1052,128 @@
       }
     });
   }
+
+  // ── Duplicate map ─────────────────────────────────────────────────
+  let duplicateMap = new Map(); // normTitle -> [items]
+
+  function normTitle(title) {
+    return (title || "").toLowerCase().replace(/[^a-z0-9]/g, "").trim();
+  }
+
+  function buildDuplicateMap() {
+    duplicateMap = new Map();
+    globalReleases.forEach(item => {
+      const key = normTitle(item.basic_information.title);
+      if (!key) return;
+      if (!duplicateMap.has(key)) duplicateMap.set(key, []);
+      duplicateMap.get(key).push(item);
+    });
+  }
+
+
+  function applyStateFromURL() {
+    try {
+      const hash = window.location.hash.slice(1);
+      if (!hash) return;
+      const state = JSON.parse(decodeURIComponent(hash));
+      if (state.q) {
+        const input = document.getElementById("searchInput");
+        input.value = state.q;
+        document.getElementById("searchClear").style.display = "block";
+      }
+      if (state.sort) document.getElementById("sortSelect").value = state.sort;
+      if (state.tab && state.tab !== "collection") {
+        activeTab = state.tab;
+        document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.tab === state.tab));
+      }
+      if (state.format) {
+        activeFormat = state.format;
+        // Highlight the matching pill
+        document.querySelectorAll("#formatPills .pill").forEach(p => {
+          p.classList.toggle("active", p.dataset?.format === state.format || p.textContent.startsWith(state.format));
+        });
+      }
+      if (state.genre) {
+        activeGenre = state.genre;
+        const badge = document.getElementById("genreActiveBadge");
+        if (badge) { badge.textContent = state.genre; badge.style.display = "inline"; }
+      }
+      applyFilters();
+    } catch (e) { /* malformed hash, ignore */ }
+  }
+
+  // ── Grid toggle ───────────────────────────────────────────────────
+  let isShelf = localStorage.getItem("discogs_view") === "shelf";
+
+  function initGridToggle() {
+    const grid = document.getElementById("results");
+    const btn = document.getElementById("gridToggleBtn");
+    const gridIcon = document.getElementById("gridIcon");
+    const shelfIcon = document.getElementById("shelfIcon");
+
+    function applyView() {
+      if (isShelf) {
+        grid.classList.add("shelf");
+        gridIcon.style.display = "none";
+        shelfIcon.style.display = "";
+      } else {
+        grid.classList.remove("shelf");
+        gridIcon.style.display = "";
+        shelfIcon.style.display = "none";
+      }
+    }
+
+    applyView();
+    btn.addEventListener("click", () => {
+      isShelf = !isShelf;
+      localStorage.setItem("discogs_view", isShelf ? "shelf" : "grid");
+      applyView();
+    });
+  }
+
+  // ── Offline / Service Worker ──────────────────────────────────────
+  // Registers an inline service worker via blob URL so offline works
+  // even when the file is opened directly from disk (file://)
+  (function registerSW() {
+    if (!("serviceWorker" in navigator)) return;
+    const CACHE = "discogs-v1";
+    const swCode = `
+const CACHE = "${CACHE.replace(/"/g,'\\"')}";
+self.addEventListener("install", e => {
+  self.skipWaiting();
+});
+self.addEventListener("activate", e => {
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+    )
+  );
+  self.clients.claim();
+});
+self.addEventListener("fetch", e => {
+  const url = e.request.url;
+  // Only cache GET requests to discogs API collection/wantlist endpoints
+  if (e.request.method !== "GET") return;
+  if (url.includes("api.discogs.com/users/") &&
+      (url.includes("/collection/") || url.includes("/wants"))) {
+    e.respondWith(
+      caches.open(CACHE).then(cache =>
+        fetch(e.request).then(res => {
+          cache.put(e.request, res.clone());
+          return res;
+        }).catch(() => caches.match(e.request))
+      )
+    );
+  }
+});
+`;
+    try {
+      const blob = new Blob([swCode], { type: "application/javascript" });
+      const blobURL = URL.createObjectURL(blob);
+      navigator.serviceWorker.register(blobURL, { scope: "/" })
+        .catch(() => {}); // silently fail on file:// restrictions
+    } catch (e) {}
+  })();
 
   loadCollection();
 </script>
