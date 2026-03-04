@@ -4,15 +4,9 @@ A clean, mobile-friendly single-file web app for browsing your Discogs vinyl (or
 
 ![Static Badge](https://img.shields.io/badge/single--file-HTML-blue) ![Static Badge](https://img.shields.io/badge/no_dependencies-✓-blue) ![Static Badge](https://img.shields.io/badge/mobile--friendly-✓-blue)
 
-## Demo Site
-
-https://discogs-collection.netlify.app/
-
-Don't use your token on this site. If there's an error, make sure your Discogs collection is public under your settings/privacy "Allow others to browse my collection" on the Discogs website. Then save and refresh.
-
 ## Screenshot
 
-![Screenshot_2-3-2026_184221_collection compact synology me](https://github.com/user-attachments/assets/489c9b56-10a3-4c3a-9d53-98b670402bc9)
+![Screenshot_2-3-2026_184221_collection compact synology me](https://github.com/user-attachments/assets/8effb240-2887-4be7-bbe0-150072fbc69c)
 
 ---
 
