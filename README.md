@@ -2,11 +2,13 @@
 
 A clean, mobile-friendly single-file web app for browsing your Discogs vinyl (or any format) collection. No server, no build step, no dependencies — just open the HTML file in a browser or self-host it.
 
+> **This is a companion app, not a replacement for Discogs.** It's a faster, simpler way to browse your collection and wantlist — managing your collection, adding records, editing details, and everything else is still done on [discogs.com](https://www.discogs.com).
+
 ![Static Badge](https://img.shields.io/badge/single--file-HTML-blue) ![Static Badge](https://img.shields.io/badge/no_dependencies-✓-blue) ![Static Badge](https://img.shields.io/badge/mobile--friendly-✓-blue)
 
 ## Screenshot
 
-![Screenshot_2-3-2026_184221_collection compact synology me](https://github.com/user-attachments/assets/8effb240-2887-4be7-bbe0-150072fbc69c)
+![Screenshot_2-3-2026_184221_collection compact synology me](https://github.com/user-attachments/assets/6e848a73-989c-4e6b-a164-9f554815412a)
 
 ---
 
@@ -170,6 +172,8 @@ location.reload();
 ---
 
 ## Privacy & Security
+
+This app is safe to use with your Discogs API token. Your credentials never touch any intermediary server — the app is a static HTML file with no backend. All requests go directly from your browser to the Discogs API.
 
 - No data is ever sent to any server other than the official [Discogs API](https://www.discogs.com/developers)
 - Your username and API token are stored only in your browser's `localStorage`
