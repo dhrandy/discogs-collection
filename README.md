@@ -2,6 +2,8 @@
 
 A clean, mobile-friendly single-file web app for browsing your Discogs vinyl (or any format) collection. No server, no build step, no dependencies — just open the HTML file in a browser or self-host it.
 
+> 🚀 **Try the live demo:** https://dhrandy.github.io/discogs-collection/discogs-collection.html — no download needed, just enter your Discogs username.
+
 > **This is a companion app, not a replacement for Discogs.** It's a faster, simpler way to browse your collection and wantlist — managing your collection, adding records, editing details, and everything else is still done on [discogs.com](https://www.discogs.com).
 
 ![Static Badge](https://img.shields.io/badge/single--file-HTML-blue) ![Static Badge](https://img.shields.io/badge/no_dependencies-✓-blue) ![Static Badge](https://img.shields.io/badge/mobile--friendly-✓-blue)
@@ -214,4 +216,4 @@ Works in all modern browsers. Requires JavaScript enabled.
 
 ## License
 
-This project is released for personal use. The Discogs name and API are the property of [Discogs](https://www.discogs.com). This tool is not affiliated with or endorsed by Discogs.
+This project is released under the MIT License — see [LICENSE](LICENSE) for details. The Discogs name and API are the property of [Discogs](https://www.discogs.com). This tool is not affiliated with or endorsed by Discogs.
