@@ -165,8 +165,13 @@ Alternatively, open your browser's developer tools and run:
 ```javascript
 localStorage.removeItem("discogs_username");
 localStorage.removeItem("discogs_token");
+localStorage.removeItem("discogs_offline_cache");
 location.reload();
 ```
+
+> Your last successfully loaded collection is kept in `localStorage` as an offline
+> fallback, so the app can still show your records when Discogs is unreachable.
+> Switching users clears it automatically.
 
 ---
 
