@@ -332,6 +332,35 @@
   let currentFilteredReleases = [];
   const detailsCache = new Map();
 
+  // ── Offline fallback ──────────────────────────────────────────────
+  // No service worker (one can't be registered from a single file).
+  // Instead we keep the last successfully loaded collection in
+  // localStorage and render it if the Discogs API can't be reached.
+  function saveOfflineCache(username, releases, wants) {
+    try {
+      let prev = null;
+      try { prev = JSON.parse(localStorage.getItem("discogs_offline_cache") || "null"); } catch (e) {}
+      const keepWants = (wants !== undefined && wants !== null) ? wants
+        : (prev && prev.username === username ? prev.wants : []);
+      localStorage.setItem("discogs_offline_cache", JSON.stringify({
+        username: username,
+        savedAt: Date.now(),
+        releases: releases,
+        wants: keepWants || []
+      }));
+    } catch (e) { /* storage full/unavailable: offline fallback just won't exist */ }
+  }
+
+  function loadOfflineCache(username) {
+    try {
+      const raw = localStorage.getItem("discogs_offline_cache");
+      if (!raw) return null;
+      const c = JSON.parse(raw);
+      if (!c || c.username !== username || !c.releases) return null;
+      return c;
+    } catch (e) { return null; }
+  }
+
   function txt(str) {
     const el = document.createElement("span");
     el.textContent = str ?? "";
@@ -415,18 +444,28 @@
     const loadingEl = document.getElementById("loading");
     loadingEl.textContent = "Loading your collection…";
 
+    let offlineNotice = "";
     try {
       const collURL = `https://api.discogs.com/users/${encodeURIComponent(username)}/collection/folders/0/releases` + auth;
       globalReleases = await fetchAllPages(collURL);
+      saveOfflineCache(username, globalReleases, null);
     } catch (err) {
-      loadingEl.textContent = "Failed to load collection: " + err.message;
-      return;
+      const cached = loadOfflineCache(username);
+      if (!cached || !cached.releases.length) {
+        loadingEl.textContent = "Failed to load collection: " + err.message;
+        return;
+      }
+      globalReleases = cached.releases;
+      wantlistReleases = cached.wants || [];
+      offlineNotice = "Couldn't reach Discogs \u2014 showing your collection saved " +
+        new Date(cached.savedAt).toLocaleString() + ".";
     }
 
-    loadingEl.textContent = "";
+    loadingEl.textContent = offlineNotice;
 
-    // Load wantlist in background (needs token for private wantlists)
-    loadWantlist(username, auth);
+    // Load wantlist in background (needs token for private wantlists).
+    // Skip it when we're showing the offline snapshot (already have cached wants).
+    if (!offlineNotice) loadWantlist(username, auth);
 
     document.getElementById("tabs").style.display = "flex";
     document.getElementById("tabCountCollection").textContent = globalReleases.length;
@@ -464,6 +503,7 @@
       wantlistReleases = await fetchAllPages(wantURL);
       // Normalise wantlist items — they have basic_information nested under .basic_information same as collection
       document.getElementById("tabCountWantlist").textContent = wantlistReleases.length;
+      saveOfflineCache(username, globalReleases, wantlistReleases);
     } catch (err) {
       // Wantlist can fail silently (private or no token) — tab stays but shows 0
       console.warn("Could not load wantlist:", err.message);
@@ -1209,50 +1249,6 @@
       applyView();
     });
   }
-
-  // ── Offline / Service Worker ──────────────────────────────────────
-  // Registers an inline service worker via blob URL so offline works
-  // even when the file is opened directly from disk (file://)
-  (function registerSW() {
-    if (!("serviceWorker" in navigator)) return;
-    const CACHE = "discogs-v1";
-    const swCode = `
-const CACHE = "${CACHE.replace(/"/g,'\\"')}";
-self.addEventListener("install", e => {
-  self.skipWaiting();
-});
-self.addEventListener("activate", e => {
-  e.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
-    )
-  );
-  self.clients.claim();
-});
-self.addEventListener("fetch", e => {
-  const url = e.request.url;
-  // Only cache GET requests to discogs API collection/wantlist endpoints
-  if (e.request.method !== "GET") return;
-  if (url.includes("api.discogs.com/users/") &&
-      (url.includes("/collection/") || url.includes("/wants"))) {
-    e.respondWith(
-      caches.open(CACHE).then(cache =>
-        fetch(e.request).then(res => {
-          cache.put(e.request, res.clone());
-          return res;
-        }).catch(() => caches.match(e.request))
-      )
-    );
-  }
-});
-`;
-    try {
-      const blob = new Blob([swCode], { type: "application/javascript" });
-      const blobURL = URL.createObjectURL(blob);
-      navigator.serviceWorker.register(blobURL, { scope: "/" })
-        .catch(() => {}); // silently fail on file:// restrictions
-    } catch (e) {}
-  })();
 
   // ── Keyboard shortcuts ───────────────────────────────────────────
   function initKeyboardShortcuts() {
