@@ -10,7 +10,7 @@ A clean, mobile-friendly single-file web app for browsing your Discogs vinyl (or
 
 ## Screenshot
 
-![Screenshot_2-3-2026_184221_collection compact synology me](https://github.com/user-attachments/assets/a761e79e-f4ae-4581-954e-723dacf6f23e)
+![Discogs Collection Viewer screenshot](https://github.com/user-attachments/assets/a761e79e-f4ae-4581-954e-723dacf6f23e)
 
 ---
 
@@ -25,12 +25,11 @@ A clean, mobile-friendly single-file web app for browsing your Discogs vinyl (or
 - **Live search** — filter by artist, album title, label, exact year, decade (`70s`, `1980s`), or year range (`1965-1972`)
 - **Format filter pills** — one-tap to show only Vinyl, CD, Box Set, etc.
 - **Genre / style filter** — collapsible filter pills pulled from your collection's genre and style tags
-- **Sort** by Artist (A–Z), Year, or Recently Added — your last sort is remembered between sessions
+- **Sort** by Artist (A–Z), Year (oldest/newest), or Date Added — your last sort is remembered between sessions
 - **Tracklist + runtime** — click any album to expand its track listing
 - **Discogs link** — each card has a ↗ button to open the release on Discogs
 - **Collector Dashboard** — stats for total releases, top artist, formats, and year range
 - **Pull to refresh** — on mobile, pull down from the top of the page to reload your collection
-- **Offline support** — after first load, your collection is cached and the app works without internet
 - **Full pagination** — loads your entire collection, not just the first 50
 - **Tracklist caching** — re-opening an album is instant after first load
 - **XSS-safe** — all API data is handled securely via DOM methods
@@ -146,23 +145,13 @@ On mobile, pull down from the top of the page to reload your collection from Dis
 
 ---
 
-## Offline Support
-
-After loading your collection for the first time, a service worker caches all Discogs API responses. If you open the app without an internet connection it will serve your collection from cache automatically. The cache refreshes whenever you're back online.
-
-> Note: offline support requires the app to be served over HTTPS or `localhost`. It may not work when opening the file directly from disk in all browsers.
-
----
-
 ## Self-Hosting
 
 1. Create a folder on your server (e.g. `discogs-collection/`)
 2. Rename `discogs-collection.html` to `index.html` and place it inside that folder
 3. Point your web server or subdomain at the folder
 
-That's it — there are no other files or dependencies. As long as it's served over HTTPS, offline support will work automatically.
-
-> **Note:** The service worker (offline support) requires HTTPS or `localhost`. It will not work when opening `index.html` directly from disk via `file://`.
+That's it — there are no other files or dependencies.
 
 ---
 
@@ -197,7 +186,6 @@ This app is safe to use with your Discogs API token. Your credentials never touc
 - **Cover images** — some older releases on Discogs may have placeholder or missing artwork
 - **Tracklist data** — each album's tracklist requires a separate API call when you first expand it
 - **Genre data** — genres and styles come from the collection API and may not be present for all releases
-- **Offline on file://** — the service worker may not register when opening the file directly from disk in some browsers. Self-host or use a local server for reliable offline support.
 
 ---
 
