@@ -1164,9 +1164,10 @@
   // ── Logout ────────────────────────────────────────────────────────
   function initLogout() {
     document.getElementById("logoutBtn").addEventListener("click", () => {
-      if (confirm("Change user? This will clear your saved username and token.")) {
+      if (confirm("Change user? This will clear your saved username, token, and offline copy.")) {
         localStorage.removeItem("discogs_username");
         localStorage.removeItem("discogs_token");
+        localStorage.removeItem("discogs_offline_cache");
         location.reload();
       }
     });
