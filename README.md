@@ -30,6 +30,7 @@ A clean, mobile-friendly single-file web app for browsing your Discogs vinyl (or
 - **Discogs link** — each card has a ↗ button to open the release on Discogs
 - **Collector Dashboard** — stats for total releases, top artist, formats, and year range
 - **Pull to refresh** — on mobile, pull down from the top of the page to reload your collection
+- **Offline fallback** — if Discogs can't be reached, the app shows your last successfully loaded collection instead of an error
 - **Full pagination** — loads your entire collection, not just the first 50
 - **Tracklist caching** — re-opening an album is instant after first load
 - **XSS-safe** — all API data is handled securely via DOM methods
@@ -185,6 +186,7 @@ This app is safe to use with your Discogs API token. Your credentials never touc
 - **Rate limiting** — Discogs allows 60 unauthenticated requests/minute and 240 authenticated requests/minute. Large collections may load slowly due to pagination. An API token helps.
 - **Cover images** — some older releases on Discogs may have placeholder or missing artwork
 - **Tracklist data** — each album's tracklist requires a separate API call when you first expand it
+- **Offline** — the offline view is a snapshot from your last successful load; tracklists and refresh need a connection
 - **Genre data** — genres and styles come from the collection API and may not be present for all releases
 
 ---
